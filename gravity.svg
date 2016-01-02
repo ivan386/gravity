@@ -8,40 +8,86 @@
 			var gm = 1
 			var maxr = 1
 			var zoom = 1
+			var time = 0
 			var dots 
 			var dots_parent
 			var rings
 			var rings_parent
 			
+			//statistic
+			
+			var dl2_min_ps = 1/0
+			var dl2_min = 1/0
+			var dl2_max_ps = 0
+			var dl2_max = 0
+			
+			function removeChilds(node){
+				while (node.firstChild) {
+					node.removeChild(node.firstChild);
+				}
+			}
+			
 			function load()
 			{
-			
+				var data
+				var lsdata
+				try{
+					data = JSON.parse(window.location.hash.substr(1))
+					
+				}catch(e){	}
+				try{
+					lsdata = JSON.parse(localStorage["gravity2"])
+					
+				}catch(e){	}
+				
+				
+				if (lsdata && data && lsdata.time && data.time && (data.time < lsdata.time))
+					data = lsdata
+				if (!data)
+					data = lsdata
+				
+				
 				dots = document.getElementById("dots")
 				dots_parent = dots.parentNode
 				rings = document.getElementById("rings")
 				rings_parent = rings.parentNode
-
 				
-				var index = 0
-				var dot = document.getElementById("dot"+index)
-				for (; dot; dot = document.getElementById("dot" + (++index)))
-				{
-					try{
-					var data = JSON.parse(dot.getAttribute("data"))
-					var x = data.planet_x
-					var y = data.planet_y
-					var z = data.planet_z
-					
-					planets.push({x: x, y: y, z: z, newx: x, newy: y, newz: z, 
-					speed_x: data.speed_x,
-					speed_y: data.speed_y,
-					speed_z: data.speed_z,
-					dot: dot,
-					ring: document.getElementById("ring" + index)})
-					}catch(e){
-						console.log(e)
-					}
+				
+				if (data && data.gm && data.planets){
+						planets = data.planets
+						gm = data.gm
+						maxr = data.maxr
+						zoom = data.zoom
+						time = data.time
+						
+						for (var i = 0; i < planets.length; i++){
+							planets[i].newx = planets[i].x;
+							planets[i].newy = planets[i].y;
+							planets[i].newz = planets[i].z;
+						}
+
+						removeChilds(dots)
+						removeChilds(rings)
 				}
+				else
+					for (var index = 0, dot = document.getElementById("dot"+index); dot; dot = document.getElementById("dot" + (++index)))
+					{
+						try{
+						var data = JSON.parse(dot.getAttribute("data"))
+						var x = data.planet_x
+						var y = data.planet_y
+						var z = data.planet_z
+						
+						planets.push({x: x, y: y, z: z, newx: x, newy: y, newz: z, 
+						speed_x: data.speed_x,
+						speed_y: data.speed_y,
+						speed_z: data.speed_z,
+						dot: dot,
+						ring: document.getElementById("ring" + index)})
+						}catch(e){
+							console.log(e)
+						}
+					}
 				
 				
 				if (planets.length == 0)
@@ -52,12 +98,12 @@
 						var z = Math.random() 
 						planets.push({x: x, y: y, z: z, newx: x, newy: y, newz: z, speed_x: 0, speed_y: 0, speed_z: 0})
 					}
-				else
+				else if (!(data && data.gm))
 				{
 					maxr = parseFloat(dots.getAttribute("maxr"))
 					zoom = parseFloat(dots.getAttribute("zoom"))
 					gm = parseFloat(dots.getAttribute("gm"))
-					
+					time = parseFloat(dots.getAttribute("time"))
 				}
 				
 
@@ -65,8 +111,10 @@
 				setInterval(move, 0)
 				
 				setTimeout(start, 40)
-				setInterval(function(){console.log(mps, fps); mps=0; fps=0}, 1000)
+				setInterval(function(){console.log(time, mps, fps, dl2_min, dl2_max, dl2_min_ps, dl2_max_ps); mps=0; fps=0; dl2_min_ps=1/0, dl2_max_ps = 0}, 1000)
+				setInterval(save_to_hash, 60000)
 			}
+			
 			
 			
 			function calc_new_xy(planet, force){
@@ -74,6 +122,19 @@
 				var dy = force.y - planet.y
 				var dz = force.z - planet.z
 				var dl2 =  dx * dx + dy * dy + dz * dz
+				
+				if (dl2 < dl2_min)
+					dl2_min = dl2;
+				
+				if (dl2 < dl2_min_ps)
+					dl2_min_ps = dl2;
+				
+				if (dl2 > dl2_max)
+					dl2_max = dl2;
+				
+				if (dl2 > dl2_max_ps)
+					dl2_max_ps = dl2;
+				
 				
 				var gravity = gm / dl2
 				
@@ -108,6 +169,7 @@
 				for (r=0; r < maxr; r++)
 				{
 					mps++
+					time++
 					var p1 = planets[0]
 					var next
 					var length = planets.length
@@ -139,6 +201,28 @@
 				}
 			}
 			
+			function save_to_hash(){
+				var data_string = JSON.stringify({"maxr": maxr,
+				 "gm": gm,
+				 "zoom": zoom,
+				 "time": time,
+				 "planets": planets}, ["maxr", "gm", "zoom", "time", "planets", "x", "y", "z", "speed_x", "speed_y", "speed_z"])
+				try{
+					history.replaceState( null , null, "#" + data_string );
+					console.log("replaceState")
+				}catch(e){
+					window.location.hash = "#" + data_string
+					console.log("location.hash")
+				}
+				
+				try{
+					localStorage["gravity2"] = data_string
+				}catch(e){}
+
+				 
+				
+			}
+			
 			
 			function draw(){
 				fps++
@@ -151,7 +235,7 @@
 				{
 					var planet = planets[i]			
 					var dot = planet.dot, ring = planet.ring;
-					if ( !dot )
+					if ( !dot || !(dot.tagName) )
 					{
 						dot = document.createElementNS("http://www.w3.org/2000/svg","circle")
 						ring = document.createElementNS("http://www.w3.org/2000/svg","circle")
@@ -251,9 +335,10 @@ dot.removeAttribute("speed_z")
 						d.push(x);d.push(y)
 					}
 */				}
-				dots.setAttribute("maxr", gm)
+				dots.setAttribute("maxr", maxr)
 				dots.setAttribute("gm", gm)
 				dots.setAttribute("zoom", zoom)
+				dots.setAttribute("time", time)
 //				path.setAttribute("d", d.join(" "))
 				
 				//rings_parent.appendChild(rings);
@@ -283,9 +368,9 @@ dot.removeAttribute("speed_z")
 		 */
 		function handle(delta) {
 				if (delta < 0)
-					zoom=zoom*2;
+					zoom=zoom*1.1;
 				else
-					zoom=zoom/2;
+					zoom=zoom/1.1;
 		}
 
 		/** Event handler for mouse wheel event.
