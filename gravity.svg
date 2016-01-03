@@ -211,8 +211,8 @@
 					history.replaceState( null , null, "#" + data_string );
 					console.log("replaceState")
 				}catch(e){
-					window.location.hash = "#" + data_string
-					console.log("location.hash")
+					window.location.replace("#" + data_string)
+					console.log("location.replace")
 				}
 				
 				try{
