@@ -21,10 +21,34 @@
 			var dl2_max_ps = 0
 			var dl2_max = 0
 			
+			var worker
+			if (!!window.Worker)
+			{
+				worker = new Worker("worker.js");
+			}
+			
 			function removeChilds(node){
 				while (node.firstChild) {
 					node.removeChild(node.firstChild);
 				}
+			}
+			
+			function from_json(json){
+				var data = JSON.parse(json)
+				planets = data.planets
+				gm = data.gm
+				maxr = data.maxr
+				zoom = data.zoom
+				time = data.time
+				
+				for (var i = 0; i < planets.length; i++){
+					planets[i].newx = planets[i].x;
+					planets[i].newy = planets[i].y;
+					planets[i].newz = planets[i].z;
+				}
+
+				removeChilds(dots)
+				removeChilds(rings)
 			}
 			
 			function load()
@@ -45,6 +69,8 @@
 					data = lsdata
 				if (!data)
 					data = lsdata
+					
+
 				
 				
 				dots = document.getElementById("dots")
@@ -106,7 +132,15 @@
 					time = parseFloat(dots.getAttribute("time"))
 				}
 				
-
+				if (worker){
+					
+					worker.onmessage = function (event)
+					{
+						alert(event.data);
+					};
+									
+					worker.postMessage(to_json());
+				}
 				
 				setInterval(move, 0)
 				
@@ -117,30 +151,9 @@
 			
 			
 			
+			
 			function calc_new_xy(planet, force){
-				var dx = force.x - planet.x
-				var dy = force.y - planet.y
-				var dz = force.z - planet.z
-				var dl2 =  dx * dx + dy * dy + dz * dz
-				
-				if (dl2 < dl2_min)
-					dl2_min = dl2;
-				
-				if (dl2 < dl2_min_ps)
-					dl2_min_ps = dl2;
-				
-				if (dl2 > dl2_max)
-					dl2_max = dl2;
-				
-				if (dl2 > dl2_max_ps)
-					dl2_max_ps = dl2;
-				
-				
-				var gravity = gm / dl2
-				
-				planet.newx += gravity * dx 
-				planet.newy += gravity * dy 
-				planet.newz += gravity * dz 
+
 				
 //				if (planet.max_gravity < Math.abs(gravity)){
 //					planet.max_gravity = Math.abs(gravity)
@@ -151,43 +164,90 @@
 			
 			function set_xy(planet)
 			{
-				planet.newx += planet.speed_x
-				planet.newy += planet.speed_y
-				planet.newz += planet.speed_z
-				planet.speed_x = planet.newx - planet.x
-				planet.speed_y = planet.newy - planet.y
-				planet.speed_z = planet.newz - planet.z
-				planet.x = planet.newx
-				planet.y = planet.newy
-				planet.z = planet.newz
+
 //				planet.max_gravity = 0;
 			}
 			
 			var mps = 0
 			
 			function move(){
+				var mpsl = mps
+				var timel = time
+				var dl2_minl = dl2_min
+				var dl2_maxl = dl2_max
+				var dl2_minl_ps = dl2_min_ps
+				var dl2_maxl_ps = dl2_max_ps
+				var length = planets.length
+				
 				for (r=0; r < maxr; r++)
 				{
-					mps++
-					time++
-					var p1 = planets[0]
+					mpsl++
+					timel++
+					var planet = planets[0]
 					var next
-					var length = planets.length
+					
 					for (i = 0; i < length; i++)
 					{
+						var x = planet.x
+						var y = planet.y
+						var z = planet.z
+						
+						var newx = planet.newx
+						var newy = planet.newy
+						var newz = planet.newz
+						
+						
 						for (o = i+1; o < length; o++)
 						{
 							
-							var p2 = planets[o]
+							var force = planets[o]
 							if (o == i+1)
-								next = p2
-							calc_new_xy(p1, p2)
-							calc_new_xy(p2, p1)
+								next = force
+							
+							var dx = force.x - x
+							var dy = force.y - y
+							var dz = force.z - z
+							var dl2 =  dx * dx + dy * dy + dz * dz
+							
+							if (dl2 < dl2_minl)
+								dl2_minl = dl2;
+							else if (dl2 > dl2_maxl)
+								dl2_maxl = dl2;
+								
+							if (dl2 < dl2_minl_ps)
+								dl2_minl_ps = dl2;
+							else if (dl2 > dl2_maxl_ps)
+								dl2_maxl_ps = dl2;
+							
+							var gravity = gm / dl2
+							
+							
+							var gdx, gdy, gdz
+							
+							newx += (gdx = gravity * dx)
+							newy += (gdy = gravity * dy)
+							newz += (gdz = gravity * dz)
+							
+							force.newx -= gdx 
+							force.newy -= gdy 
+							force.newz -= gdz 
 						}
-						set_xy(p1)
-						p1 = next
+
+						planet.speed_x = (planet.newx = newx + planet.speed_x) - planet.x
+						planet.speed_y = (planet.newy = newy + planet.speed_y) - planet.y
+						planet.speed_z = (planet.newz = newz + planet.speed_z) - planet.z
+						planet.x = planet.newx
+						planet.y = planet.newy
+						planet.z = planet.newz
+						planet = next
 					}
 				}
+				mps = mpsl
+				time = timel
+				dl2_min = dl2_minl
+				dl2_max = dl2_maxl
+				dl2_min_ps = dl2_minl_ps
+				dl2_max_ps = dl2_maxl_ps	
 			}
 			
 			var fps = 0
@@ -195,18 +255,22 @@
 			var a = 0
 			
 			function setAttribute(ob, name, value){
-				if (Math.abs(ob.getAttribute(name) - value) > 0.1){
+				if (Math.abs(ob.getAttribute(name) - value) > 0.05){
 					ob.setAttribute(name, value);
 					return true;
 				}
 			}
 			
-			function save_to_hash(){
-				var data_string = JSON.stringify({"maxr": maxr,
+			function to_json(){
+				return JSON.stringify({"maxr": maxr,
 				 "gm": gm,
 				 "zoom": zoom,
 				 "time": time,
 				 "planets": planets}, ["maxr", "gm", "zoom", "time", "planets", "x", "y", "z", "speed_x", "speed_y", "speed_z"])
+			}
+			
+			function save_to_hash(){
+				var data_string = to_json()
 				try{
 					history.replaceState( null , null, "#" + data_string );
 					console.log("replaceState")
@@ -267,23 +331,7 @@
 "speed_y": '+planet.speed_y+', \
 "speed_z": '+planet.speed_z+' }')
 
-/*
-dot.removeAttribute("planet_x")
-dot.removeAttribute("planet_y")
-dot.removeAttribute("planet_z")
-dot.removeAttribute("speed_x")
-dot.removeAttribute("speed_y")
-dot.removeAttribute("speed_z")
-*/
 
-/*					dot.setAttribute("planet_x", x)
-					dot.setAttribute("planet_y", y)
-					dot.setAttribute("planet_z", z)
-					dot.setAttribute("speed_x", planet.speed_x)
-					dot.setAttribute("speed_y", planet.speed_y)
-					dot.setAttribute("speed_z", planet.speed_z)
-					
-					*/
 					
 					x = x * Math.cos(a) + z  * Math.sin(a)
 					z = - planet.x * Math.sin(a) + z  * Math.cos(a)
@@ -318,23 +366,7 @@ dot.removeAttribute("speed_z")
 				
 
 
-					
-					
-					
-
-/*					if (planet.max_gravity_force){
-						d.push("M");d.push(x);d.push(y)
-												
-						var x = planet.max_gravity_force.x, y = planet.max_gravity_force.y, z = planet.max_gravity_force.z;
-						
-						x = x * Math.cos(a) + z  * Math.sin(a)
-						
-						x = 50 + x * zoom
-						y = 50 + y * zoom
-						
-						d.push(x);d.push(y)
-					}
-*/				}
+				}
 				dots.setAttribute("maxr", maxr)
 				dots.setAttribute("gm", gm)
 				dots.setAttribute("zoom", zoom)
