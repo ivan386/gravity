@@ -51,7 +51,7 @@ function move(){
 	
 	if (length > 0)
 	{
-		for (r=0; r < maxr; r++)
+		for (r=0; r < maxrw; r++)
 		{
 			mpsl++
 			timel++
