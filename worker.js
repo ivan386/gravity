@@ -41,7 +41,7 @@ onmessage = function (obj){
 
 function move(){
 
-	
+	var length = planets.length
 	
 	if (length > 0)
 	{
@@ -52,7 +52,7 @@ function move(){
 		var dl2_maxl = dl2_max
 		var dl2_minl_ps = dl2_min_ps
 		var dl2_maxl_ps = dl2_max_ps
-		var length = planets.length
+		
 		for (r=0; r < maxrw; r++)
 		{
 			mpsl++
