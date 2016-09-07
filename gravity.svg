@@ -49,7 +49,8 @@
 					planets[i].newz = planets[i].z;
 				}
 
-
+				removeChilds(dots)
+				removeChilds(rings)
 			}
 			
 			function load()
@@ -258,10 +259,17 @@
 			var a = 0
 			
 			function setAttribute(ob, name, value){
-				if (Math.abs(ob.getAttribute(name) - value) > 0.05){
-					ob.setAttribute(name, value);
-					return true;
+				var old_value = ob.getAttribute(name)
+				if (old_value){
+					if (Math.abs(old_value - value) > 0.05){
+						ob.setAttribute(name, value);
+						return true;
+					}
 				}
+				else{
+					ob.setAttribute(name, value);
+				}
+
 			}
 			
 			function to_json(){
@@ -312,7 +320,7 @@
 						dot.setAttribute("id", "dot"+i)
 						ring.setAttribute("id", "ring"+i)
 						
-						dot.setAttribute("r", "0.5")
+						
 						var color = Math.floor(Math.random() * 0xFFFFFF).toString(16)
 						for (;color.length < 6;)
 							color = "0" + color;
