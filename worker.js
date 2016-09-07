@@ -4,6 +4,12 @@ var maxr = 1
 var zoom = 1
 var time = 0
 
+var mps = 0
+var dl2_min_ps = 1/0
+var dl2_min = 1/0
+var	dl2_min_ps = 0
+var	dl2_max_ps = 0
+
 function from_json(json){
 	var data = JSON.parse(json)
 	planets = data.planets
