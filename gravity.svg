@@ -37,8 +37,8 @@
 				var data = JSON.parse(json)
 				planets = data.planets
 				gm = data.gm
-				maxr = data.maxr
-				zoom = data.zoom
+				if (data.maxr) maxr = data.maxr;
+				if (data.zoom) zoom = data.zoom;
 				time = data.time
 				
 				for (var i = 0; i < planets.length; i++){

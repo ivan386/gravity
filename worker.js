@@ -29,11 +29,10 @@ function from_json(json){
 }
 
 function to_json(){
-	return JSON.stringify({"maxr": maxr,
+	return JSON.stringify({
 	 "gm": gm,
-	 "zoom": zoom,
 	 "time": time,
-	 "planets": planets}, ["maxr", "gm", "zoom", "time", "planets", "x", "y", "z", "speed_x", "speed_y", "speed_z"])
+	 "planets": planets}, ["gm", "time", "planets", "x", "y", "z", "speed_x", "speed_y", "speed_z"])
 }
 
 onmessage = function (obj){
