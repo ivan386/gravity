@@ -260,7 +260,7 @@
 			
 			function setAttribute(ob, name, value){
 				var old_value = ob.getAttribute(name)
-				if (old_value){
+				if (old_value && (old_value != "0")){
 					if (Math.abs(old_value - value) > 0.05){
 						ob.setAttribute(name, value);
 						return true;
