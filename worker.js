@@ -40,17 +40,19 @@ onmessage = function (obj){
 }
 
 function move(){
-	var mpsl = mps
-	var timel = time
-	var dl2_minl = dl2_min
-	var dl2_maxl = dl2_max
-	var dl2_minl_ps = dl2_min_ps
-	var dl2_maxl_ps = dl2_max_ps
-	var length = planets.length
+
 	
 	
 	if (length > 0)
 	{
+		
+		var mpsl = mps
+		var timel = time
+		var dl2_minl = dl2_min
+		var dl2_maxl = dl2_max
+		var dl2_minl_ps = dl2_min_ps
+		var dl2_maxl_ps = dl2_max_ps
+		var length = planets.length
 		for (r=0; r < maxrw; r++)
 		{
 			mpsl++
@@ -114,15 +116,14 @@ function move(){
 				planet = next
 			}
 		}
-		
+		mps = mpsl
+		time = timel
+		dl2_min = dl2_minl
+		dl2_max = dl2_maxl
+		dl2_min_ps = dl2_minl_ps
+		dl2_max_ps = dl2_maxl_ps
 		postMessage(to_json())
-	}
-	mps = mpsl
-	time = timel
-	dl2_min = dl2_minl
-	dl2_max = dl2_maxl
-	dl2_min_ps = dl2_minl_ps
-	dl2_max_ps = dl2_maxl_ps	
+	}	
 }
 
 setInterval(move, 0)
