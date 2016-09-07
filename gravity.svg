@@ -265,7 +265,6 @@
 					}
 				}
 				else{
-					ob.setA = false;
 					ob.setAttribute(name, value);
 				}
 
@@ -337,6 +336,9 @@
 							color = "0" + color;
 						
 						dot.setAttribute("fill", "#" + color )
+					}else{
+						dot.setA = false;
+						ring.setA = false;
 					}
 					
 					var x = planet.x, y = planet.y, z = planet.z;
