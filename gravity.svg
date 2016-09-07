@@ -36,19 +36,21 @@
 			
 			function from_json(json){
 				var data = JSON.parse(json)
-				planets = data.planets
-				gm = data.gm
-				if (data.maxr) maxr = data.maxr;
-				if (data.maxrw) maxrw = data.maxrw;
-				if (data.zoom) zoom = data.zoom;
-				time = data.time
 				
-				for (var i = 0; i < planets.length; i++){
-					planets[i].newx = planets[i].x;
-					planets[i].newy = planets[i].y;
-					planets[i].newz = planets[i].z;
+				if (data.time > time){
+					planets = data.planets
+					gm = data.gm
+					if (data.maxr) maxr = data.maxr;
+					if (data.maxrw) maxrw = data.maxrw;
+					if (data.zoom) zoom = data.zoom;
+					time = data.time
+					
+					for (var i = 0; i < planets.length; i++){
+						planets[i].newx = planets[i].x;
+						planets[i].newy = planets[i].y;
+						planets[i].newz = planets[i].z;
+					}
 				}
-
 			}
 			
 			function load()
