@@ -258,13 +258,14 @@
 			
 			function setAttribute(ob, name, value){
 				var old_value = ob.getAttribute(name)
-				if (old_value && (old_value != "0")){
+				if (old_value && (old_value != "0") && !ob.setA){
 					if (Math.abs(old_value - value) > 0.05){
 						ob.setAttribute(name, value);
 						return true;
 					}
 				}
 				else{
+					ob.setA = false;
 					ob.setAttribute(name, value);
 				}
 
@@ -312,30 +313,30 @@
 					if ( !dot || !(dot.tagName) )
 					{
 						dot = document.getElementById("dot"+i);
-						if (!dot)
+						if (!dot){
 							dot = document.createElementNS("http://www.w3.org/2000/svg","circle");
+							dots.appendChild(dot);
+							dot.setAttribute("id", "dot"+i);
+						}
+							
 							
 						ring = document.getElementById("ring"+i);
-						if (!ring)
+						if (!ring){
 							ring = document.createElementNS("http://www.w3.org/2000/svg","circle");
+							rings.appendChild(ring)
+							ring.setAttribute("id", "ring"+i);
+						}
+							
 							
 						planet.dot = dot; planet.ring = ring;
-						
-						dot.setAttribute("id", "dot"+i)
-						ring.setAttribute("id", "ring"+i)
-						
-						
-						
+						dot.setA = true;
+						ring.setA = true;
+
 						var color = Math.floor(0xFFFFFF/planets.length*i).toString(16)
 						for (;color.length < 6;)
 							color = "0" + color;
 						
 						dot.setAttribute("fill", "#" + color )
-						
-						dots.appendChild(dot)
-						rings.appendChild(ring)
-						
-						
 					}
 					
 					var x = planet.x, y = planet.y, z = planet.z;
