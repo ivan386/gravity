@@ -321,7 +321,8 @@
 						ring.setAttribute("id", "ring"+i)
 						
 						
-						var color = Math.floor(Math.random() * 0xFFFFFF).toString(16)
+						
+						var color = Math.floor(0xFFFFFF/planets.length*i).toString(16)
 						for (;color.length < 6;)
 							color = "0" + color;
 						
