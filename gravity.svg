@@ -49,8 +49,7 @@
 					planets[i].newz = planets[i].z;
 				}
 
-				removeChilds(dots)
-				removeChilds(rings)
+
 			}
 			
 			function load()
