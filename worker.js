@@ -14,7 +14,7 @@ function from_json(json){
 	var data = JSON.parse(json)
 	planets = data.planets
 	gm = data.gm
-	maxr = data.maxr
+	maxrw = data.maxrw
 	zoom = data.zoom
 	time = data.time
 	
@@ -23,16 +23,14 @@ function from_json(json){
 		planets[i].newy = planets[i].y;
 		planets[i].newz = planets[i].z;
 	}
-
-	removeChilds(dots)
-	removeChilds(rings)
 }
 
 function to_json(){
 	return JSON.stringify({
 	 "gm": gm,
 	 "time": time,
-	 "planets": planets}, ["gm", "time", "planets", "x", "y", "z", "speed_x", "speed_y", "speed_z"])
+	 "maxrw": maxrw,
+	 "planets": planets}, ["gm", "time", "maxrw", "planets", "x", "y", "z", "speed_x", "speed_y", "speed_z"])
 }
 
 onmessage = function (obj){
