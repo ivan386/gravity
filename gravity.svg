@@ -49,8 +49,6 @@
 					planets[i].newz = planets[i].z;
 				}
 
-				removeChilds(dots)
-				removeChilds(rings)
 			}
 			
 			function load()
@@ -313,8 +311,14 @@
 					var dot = planet.dot, ring = planet.ring;
 					if ( !dot || !(dot.tagName) )
 					{
-						dot = document.createElementNS("http://www.w3.org/2000/svg","circle")
-						ring = document.createElementNS("http://www.w3.org/2000/svg","circle")
+						dot = document.getElementById("dot"+i);
+						if (!dot)
+							dot = document.createElementNS("http://www.w3.org/2000/svg","circle");
+							
+						ring = document.getElementById("ring"+i);
+						if (!ring)
+							ring = document.createElementNS("http://www.w3.org/2000/svg","circle");
+							
 						planet.dot = dot; planet.ring = ring;
 						
 						dot.setAttribute("id", "dot"+i)
