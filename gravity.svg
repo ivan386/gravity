@@ -7,7 +7,7 @@
 			var planets = []
 			var gm = 1
 			var maxr = 1
-			var maxrw = 10000
+			var maxrw = 1000000
 			var zoom = 1
 			var time = 0
 			var dots 
@@ -144,6 +144,11 @@
 					};
 									
 					worker.postMessage(to_json());
+					
+					setInterval(function(){
+						if (worker) 
+							worker.postMessage("")
+					} ,60000)
 				}
 				
 				setInterval(move, 0)

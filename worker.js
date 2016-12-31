@@ -10,6 +10,8 @@ var dl2_min = 1/0
 var dl2_max_ps = 0
 var dl2_max = 0
 
+var signal = false
+
 function from_json(json){
 	var data = JSON.parse(json)
 	planets = data.planets
@@ -34,6 +36,8 @@ function to_json(){
 }
 
 onmessage = function (obj){
+	if (!obj.data || !obj.data.length)
+		return signal = true;
 	from_json(obj.data)
 	postMessage(obj.data)
 	console.log("worker")
@@ -122,8 +126,10 @@ function move(){
 		dl2_max = dl2_maxl
 		dl2_min_ps = dl2_minl_ps
 		dl2_max_ps = dl2_maxl_ps
-		postMessage(to_json())
-	}	
+		if ( signal && !(signal = false) ) 
+			postMessage( to_json() )
+	}
+	setTimeout(move, 0)
 }
 
-setInterval(move, 0)
+setTimeout(move, 0)
