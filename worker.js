@@ -1,6 +1,6 @@
 var planets = []
 var gm = 1
-var maxr = 1
+var maxrw = 100000
 var zoom = 1
 var time = 0
 
