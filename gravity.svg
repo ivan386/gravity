@@ -150,14 +150,14 @@
 					setInterval(function(){
 						if (worker) 
 							worker.postMessage("")
-					} ,60000)
+					} ,600000)
 				}
 				
 				setInterval(move, 0)
 				
 				setTimeout(start, 40)
 				//setInterval(function(){console.log(time, mps, fps, dl2_min, dl2_max, dl2_min_ps, dl2_max_ps); mps=0; fps=0; dl2_min_ps=1/0, dl2_max_ps = 0}, 1000)
-				setInterval(save_to_hash, 60000)
+				setInterval(save_to_hash, 600000)
 			}
 			
 			
